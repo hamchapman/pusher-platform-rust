@@ -1,6 +1,5 @@
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
-use reqwest;
 use jsonwebtoken::{encode, Header, Algorithm};
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -39,10 +38,6 @@ impl Authenticator {
     pub fn generate_access_token(&self, sub: &str) -> TokenWithExpiry {
         let start = SystemTime::now();
         let now = start.duration_since(UNIX_EPOCH).expect("Time went backwards");
-
-        // let now = Math.floor(Date.now() / 1000);
-        // let tokenExpiry = options.tokenExpiry || this.tokenExpiry;
-
         let token_expiry = Duration::from_secs(DEFAULT_TOKEN_EXPIRY);
 
         let claims = Claims {
@@ -53,18 +48,12 @@ impl Authenticator {
           sub: sub.to_string(),
         };
 
-        let key = self.key_secret.to_string();
+        let secret = self.key_secret.to_string();
 
         let mut header = Header::default();
         header.alg = Algorithm::HS256;
 
-        // let token = match encode(&header, &claims, key.as_ref()) {
-        //     Ok(t) => t,
-        //     Err(_) => panic!(), // in practice you would return the error
-        // };
-        // println!("{:?}", token);
-
-        let token = encode(&header, &claims, key.as_ref()).expect("JWT signing should work");
+        let token = encode(&header, &claims, secret.as_ref()).expect("JWT signing should work");
 
         TokenWithExpiry {
           token: token,
@@ -74,6 +63,6 @@ impl Authenticator {
 }
 
 pub struct TokenWithExpiry {
-    token: String,
-    expires_in: u64,
+    pub token: String,
+    pub expires_in: u64,
 }

@@ -1,24 +1,41 @@
+use serde::de::DeserializeOwned;
+use reqwest::{RequestBuilder};
+use reqwest::header::{HeaderMap};
+
+use erased_serde::{Serialize, Serializer};
+
 use crate::base_client::BaseClient;
 use crate::authenticator::{Authenticator, TokenWithExpiry};
+use crate::error::{Error};
 
 const HOST_BASE: &str = "pusherplatform.io";
 const HTTPS_PORT: u32 = 443;
 
+#[derive(Default)]
+pub struct RequestOptions {
+    method: String,
+    path: String,
+    jwt: Option<String>,
+    headers: Option<HeaderMap>,
+    body: Option<Box<Serialize>>,
+    // qs: Option<object>,
+}
+
 pub struct Instance {
-  client: BaseClient,
-  id: String,
-  key_id: String,
-  key_secret: String,
+    client: BaseClient,
+    id: String,
+    key_id: String,
+    key_secret: String,
 
-  service_name: String,
-  service_version: String,
+    service_name: String,
+    service_version: String,
 
-  host: String,
+    host: String,
 
-  cluster: String,
-  platform_version: String,
+    cluster: String,
+    platform_version: String,
 
-  authenticator: Authenticator,
+    authenticator: Authenticator,
 }
 
 impl Instance {
@@ -50,7 +67,22 @@ impl Instance {
         }
     }
 
-    pub fn generateAccessToken(&self, sub: &str) -> TokenWithExpiry {
+    pub fn generate_access_token(&self, sub: &str) -> TokenWithExpiry {
         return self.authenticator.generate_access_token(sub);
     }
+
+    pub fn request<T: DeserializeOwned>(&self, options: RequestOptions) -> Result<T, Error> {
+        return self.client.request(options);
+    }
+
+
+    // pub fn json<T: Serialize + ?Sized>(self, json: &T) -> RequestBuilder {
+
+    // }
+
 }
+
+
+
+
+

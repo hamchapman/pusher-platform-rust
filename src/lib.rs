@@ -8,12 +8,13 @@ mod tests {
 
 #[macro_use]
 extern crate serde_derive;
-
 extern crate serde;
 extern crate serde_json;
+extern crate erased_serde;
 
-mod instance;
-mod base_client;
 mod authenticator;
+mod base_client;
+mod error;
+mod instance;
 
 pub use self::instance::{Instance};
